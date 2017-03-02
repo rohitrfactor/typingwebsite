@@ -4,28 +4,40 @@
 	<meta charset="utf-8">
 	<title>Diff Words</title>
 	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="./Diff_files/flipclock.css">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
+	<script src="./Diff_files/flipclock.js"></script>
     <script src="liquidFillGauge.js" language="JavaScript"></script>
     <style>
         .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
     </style>
 </head>
+
 <body>
+	<div class="clock" style="margin:2em;"></div>
 <div>
 <svg id="fillgauge1" width="50%" height="250" style="float:left"></svg>
 <svg id="fillgauge2" width="50%" height="250" style="float:left"></svg>
+<svg id="fillgauge3" width="50%" height="250" style="float:left"></svg>
+
 </div>
+
 <div id="settings">
 	<h1>Result By</h1>
 <!--	<label><input type="radio" name="diff_type" value="diffChars" > Chars</label> -->
-	<label><input type="radio" name="diff_type" value="diffWords" 	checked=""> Words</label>
+	<label><input type="radio" name="diff_type" value="diffWords" checked=""> Words</label>
 <!--	<label><input type="radio" name="diff_type" value="diffLines"> Lines</label> -->
 </div>
 
 
 <table>
 	<tbody><tr>
-		<td id="a">Red Pink Purple Glass</td>
+		<td id="a">Foreign Secretary S. Jaishankar on Wednesday met U.S. National Security Advisor Lt. Gen. H.R. McMaster and discussed counter-terrorism and bilateral relations between the two countries.
+
+Mr. Jaishankar also met Speaker of the House of Representatives Paul Ryan and discussed various issues, including ways to enhance economic and defence cooperation between India and the U.S. “The relationship between the U.S. and India is rooted in shared values of democracy and freedom,” Mr. Ryan said in a statement.
+
+“We had a great opportunity today to build on this critical partnership by discussing ways to enhance our economic and defence cooperation,” it added.</td>
 		<td contenteditable="true" id="b">Pink Glass</td>
 		<td><pre id="result"><del>restaurant</del><ins>aur</ins></pre></td>
 	</tr>
@@ -33,11 +45,37 @@
 
 <script src="./Diff_files/diff.js"></script>
 <script defer="">
+
+var clock;
+
+$(document).ready(function() {
+
+	clock = $('.clock').FlipClock(10, {
+				clockFace: 'MinuteCounter',
+				countdown: true,
+				autoStart: false,
+				callbacks: {
+					start: function() {
+						$('.message').html('The clock has started!');
+					},
+					stop: function(){
+						alert("Time Over");
+					}
+				}
+		});
+});
+
+var abc = function(){
+	clock.start();
+};
 var config1 = liquidFillGaugeDefaultSettings();
 config1.circleColor = "#2E7D32";
 config1.textColor = "#1B5E20";
 config1.waveTextColor = "#69F0AE";
 config1.waveColor = "#2E7D32";
+config1.waveAnimateTime = 2000;
+config1.waveCount = 1;
+config1.waveHeight = 0.15;
 var gauge1 = loadLiquidFillGauge("fillgauge1", 0, config1);
 
 var config2 = liquidFillGaugeDefaultSettings();
@@ -47,10 +85,19 @@ config2.waveTextColor = "#FF6E40";
 config2.waveColor = "#BF360C";
 var gauge2 = loadLiquidFillGauge("fillgauge2", 0, config2);
 
+var config3 = liquidFillGaugeDefaultSettings();
+config3.circleColor = "#BF360C";
+config3.textColor = "#BF360C";
+config3.waveTextColor = "#FF6E40";
+config3.waveColor = "#BF360C";
+var gauge3 = loadLiquidFillGauge("fillgauge3", 100, config2);
+var timeRemaining = 10;
+
 
 var a = document.getElementById('a');
 var b = document.getElementById('b');
 var result = document.getElementById('result');
+
 
 function changed() {
 	var diff = JsDiff[window.diffType](a.textContent, b.textContent);
@@ -99,11 +146,14 @@ function changed() {
 
 window.onload = function() {
 	onDiffTypeChange(document.querySelector('#settings [name="diff_type"]:checked'));
+	b.addEventListener("keydown", abc);
+
 	changed();
 };
 
 a.onpaste = a.onchange =
 b.onpaste = b.onchange = changed;
+
 
 if ('oninput' in a) {
 	a.oninput = b.oninput = changed;
@@ -134,6 +184,37 @@ function wordLength(string){
 		}
 	return stringLength;
 }
+
+/*
+var displayTime = function () {
+	var countDownTime = new Date().getTime()+90000;
+	var getTime = setInterval(function() {
+		var now = new Date().getTime();
+		var distance = countDownTime - now;
+
+		timeRemaining--;
+		//timer.innerHTML = "Time Remaining: " + timeRemaining + "s";
+		gauge3.update(timeRemaining);
+		console.log(timeRemaining);
+	//	if(timeRemaining>0){guage3.update(timeRemaining);}
+		if(timeRemaining == 0){
+
+			clearInterval(getTime);
+
+			//var wrapper = document.getElementById("wrapper");
+			//wrapper.remove();
+			gauge3.update(0);
+			//timer.remove();
+
+			//document.body.appendChild(newTestWindow);
+			//document.getElementById("finalScore").innerHTML = "Your speed: " + calculateScore() + " words per minute.";
+			//newTestWindow.style.display = "block";
+		}
+	}, 1000);
+
+	b.removeEventListener("keydown", displayTime);
+};
+*/
 </script>
 
 <script language="JavaScript">
