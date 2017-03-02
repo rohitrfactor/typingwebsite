@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<!-- saved from url=(0033)http://kpdecker.github.io/jsdiff/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>Diff Words</title>
+	<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="settings">
+	<h1>Result By</h1>
+<!--	<label><input type="radio" name="diff_type" value="diffChars" > Chars</label> -->
+	<label><input type="radio" name="diff_type" value="diffWords" 	checked=""> Words</label>
+<!--	<label><input type="radio" name="diff_type" value="diffLines"> Lines</label> -->
+</div>
+
+
+<table>
+	<tbody><tr>
+		<td id="a">Red Pink Purple Glass</td>
+		<td contenteditable="true" id="b">Pink Glass</td>
+		<td><pre id="result"><del>restaurant</del><ins>aur</ins></pre></td>
+	</tr>
+</tbody></table>
+
+<script src="./Diff_files/diff.js"></script>
+<script defer="">
+var a = document.getElementById('a');
+var b = document.getElementById('b');
+var result = document.getElementById('result');
+
+function changed() {
+	var diff = JsDiff[window.diffType](a.textContent, b.textContent);
+	console.log("Total Components : "+diff.length);
+	var errorCount = 0;
+        var insCount = 0;
+        var normalCount = 0;
+	var fragment = document.createDocumentFragment();
+	for (var i=0; i < diff.length; i++) {
+
+		if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
+			var swap = diff[i];
+			diff[i] = diff[i + 1];
+			diff[i + 1] = swap;
+		}
+
+		var node;
+		if (diff[i].removed) {
+			node = document.createElement('del');
+			node.appendChild(document.createTextNode(diff[i].value));
+			console.log("Missing words "+diff[i].value+" Length "+wordLength(diff[i].value));
+			errorCount += wordLength(diff[i].value);
+
+		} else if (diff[i].added) {
+			node = document.createElement('ins');
+			node.appendChild(document.createTextNode(diff[i].value));
+                        insCount += wordLength(diff[i].value) ;
+
+		} else {
+			node = document.createTextNode(diff[i].value);
+			normalCount += wordLength(diff[i].value);
+
+		}
+		fragment.appendChild(node);
+	}
+	console.log("Missing Words Count : "+errorCount);
+	console.log("Extra words count : "+insCount);
+        console.log("Correct Components : "+normalCount);
+  console.log("Error Percentage : "+((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
+	console.log("Accuracy : "+((normalCount)/(errorCount+insCount+normalCount))*100);
+	result.textContent = '';
+	result.appendChild(fragment);
+}
+
+window.onload = function() {
+	onDiffTypeChange(document.querySelector('#settings [name="diff_type"]:checked'));
+	changed();
+};
+
+a.onpaste = a.onchange =
+b.onpaste = b.onchange = changed;
+
+if ('oninput' in a) {
+	a.oninput = b.oninput = changed;
+} else {
+	a.onkeyup = b.onkeyup = changed;
+}
+
+function onDiffTypeChange(radio) {
+	window.diffType = radio.value;
+	document.title = "Diff " + radio.value.slice(4);
+}
+
+var radio = document.getElementsByName('diff_type');
+for (var i = 0; i < radio.length; i++) {
+	radio[i].onchange = function(e) {
+
+(e.target);
+		changed();
+	}
+}
+function wordLength(string){
+	var stringLength = 0;
+	var stringArray = string.trim().split(" ");
+		for(var i=0;i<stringArray.length;i++){
+			if(stringArray[i] !=""){
+				stringLength++;
+			}
+		}
+	return stringLength;
+}
+</script>
+
+
+</body></html>
