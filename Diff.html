@@ -4,9 +4,17 @@
 	<meta charset="utf-8">
 	<title>Diff Words</title>
 	<link rel="stylesheet" href="style.css">
+	<script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
+    <script src="liquidFillGauge.js" language="JavaScript"></script>
+    <style>
+        .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
+    </style>
 </head>
 <body>
-
+<div>
+<svg id="fillgauge1" width="50%" height="250" style="float:left"></svg>
+<svg id="fillgauge2" width="50%" height="250" style="float:left"></svg>
+</div>
 <div id="settings">
 	<h1>Result By</h1>
 <!--	<label><input type="radio" name="diff_type" value="diffChars" > Chars</label> -->
@@ -25,6 +33,21 @@
 
 <script src="./Diff_files/diff.js"></script>
 <script defer="">
+var config1 = liquidFillGaugeDefaultSettings();
+config1.circleColor = "#2E7D32";
+config1.textColor = "#1B5E20";
+config1.waveTextColor = "#69F0AE";
+config1.waveColor = "#2E7D32";
+var gauge1 = loadLiquidFillGauge("fillgauge1", 0, config1);
+
+var config2 = liquidFillGaugeDefaultSettings();
+config2.circleColor = "#BF360C";
+config2.textColor = "#BF360C";
+config2.waveTextColor = "#FF6E40";
+config2.waveColor = "#BF360C";
+var gauge2 = loadLiquidFillGauge("fillgauge2", 0, config2);
+
+
 var a = document.getElementById('a');
 var b = document.getElementById('b');
 var result = document.getElementById('result');
@@ -68,6 +91,8 @@ function changed() {
         console.log("Correct Components : "+normalCount);
   console.log("Error Percentage : "+((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
 	console.log("Accuracy : "+((normalCount)/(errorCount+insCount+normalCount))*100);
+	gauge1.update(((normalCount)/(errorCount+insCount+normalCount))*100);
+	gauge2.update(((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
 	result.textContent = '';
 	result.appendChild(fragment);
 }
@@ -111,5 +136,8 @@ function wordLength(string){
 }
 </script>
 
+<script language="JavaScript">
+
+</script>
 
 </body></html>
