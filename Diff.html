@@ -15,12 +15,11 @@
 </head>
 
 <body>
-	<div class="clock" style="margin:2em;"></div>
+
 <div>
 <svg id="fillgauge1" width="50%" height="250" style="float:left"></svg>
 <svg id="fillgauge2" width="50%" height="250" style="float:left"></svg>
-<svg id="fillgauge3" width="50%" height="250" style="float:left"></svg>
-
+<div class="clock" style="margin:2em;"></div>
 </div>
 
 <div id="settings">
@@ -83,16 +82,10 @@ config2.circleColor = "#BF360C";
 config2.textColor = "#BF360C";
 config2.waveTextColor = "#FF6E40";
 config2.waveColor = "#BF360C";
+config2.waveAnimateTime = 2000;
+config2.waveCount = 1;
+config2.waveHeight = 0.15;
 var gauge2 = loadLiquidFillGauge("fillgauge2", 0, config2);
-
-var config3 = liquidFillGaugeDefaultSettings();
-config3.circleColor = "#BF360C";
-config3.textColor = "#BF360C";
-config3.waveTextColor = "#FF6E40";
-config3.waveColor = "#BF360C";
-var gauge3 = loadLiquidFillGauge("fillgauge3", 100, config2);
-var timeRemaining = 10;
-
 
 var a = document.getElementById('a');
 var b = document.getElementById('b');
