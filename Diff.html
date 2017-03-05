@@ -8,6 +8,7 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 	<script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
 	<script src="./Diff_files/flipclock.js"></script>
+	<script src="./Diff_files/diff.js"></script>
     <script src="liquidFillGauge.js" language="JavaScript"></script>
     <style>
         .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
@@ -15,203 +16,162 @@
 </head>
 
 <body>
-
-<div>
-<svg id="fillgauge1" width="50%" height="250" style="float:left"></svg>
-<svg id="fillgauge2" width="50%" height="250" style="float:left"></svg>
-<div class="clock" style="margin:2em;"></div>
-</div>
-
-<div id="settings">
-	<h1>Result By</h1>
-<!--	<label><input type="radio" name="diff_type" value="diffChars" > Chars</label> -->
-	<label><input type="radio" name="diff_type" value="diffWords" checked=""> Words</label>
-<!--	<label><input type="radio" name="diff_type" value="diffLines"> Lines</label> -->
-</div>
-
-
-<table>
-	<tbody><tr>
-		<td id="a">Foreign Secretary S. Jaishankar on Wednesday met U.S. National Security Advisor Lt. Gen. H.R. McMaster and discussed counter-terrorism and bilateral relations between the two countries.
-
+<div id="instructions"></div>
+<div id="practice" style="width:100%" >
+					<div class="clock" style="margin:2em; display:table;width:0;margin:0 auto"></div>
+					<button id="submitTest" onclick="endTest()" disabled="true">Finish</button>
+					<table>
+					<tbody><tr>
+							<td id="a">Foreign Secretary S. Jaishankar on Wednesday met U.S. National Security Advisor Lt. Gen. H.R. McMaster and discussed counter-terrorism and bilateral relations between the two countries.
 Mr. Jaishankar also met Speaker of the House of Representatives Paul Ryan and discussed various issues, including ways to enhance economic and defence cooperation between India and the U.S. “The relationship between the U.S. and India is rooted in shared values of democracy and freedom,” Mr. Ryan said in a statement.
-
 “We had a great opportunity today to build on this critical partnership by discussing ways to enhance our economic and defence cooperation,” it added.</td>
-		<td contenteditable="true" id="b">Pink Glass</td>
-		<td><pre id="result"><del>restaurant</del><ins>aur</ins></pre></td>
-	</tr>
-</tbody></table>
+							<td contenteditable="true" id="b" spellcheck="false"></td>
+					</tr>
+					</tbody>
+				  </table>
+</div>
+<div id="output">
+			<svg id="accuracy" width="50%" height="250" style="float:left"></svg>
+			<svg id="error" width="50%" height="250" style="float:left"></svg>
+			<table>
+			<tbody><tr style="width:100%">
+							<td style="width:100%"><pre id="result" style="width:100%;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-o-pre-wrap;white-space:-pre-wrap;word-wrap: break-word;"><del></del><ins></ins></pre></td>
+			</tr>
+			</tbody>
+			</table>
+</div>
 
-<script src="./Diff_files/diff.js"></script>
 <script defer="">
+				$('#b').bind("cut copy paste",function(e) {
+				     e.preventDefault();
+				 })
 
-var clock;
+				var clock;
 
-$(document).ready(function() {
+				$(document).ready(function() {
 
-	clock = $('.clock').FlipClock(10, {
-				clockFace: 'MinuteCounter',
-				countdown: true,
-				autoStart: false,
-				callbacks: {
-					start: function() {
-						$('.message').html('The clock has started!');
-					},
-					stop: function(){
-						alert("Time Over");
-					}
+					clock = $('.clock').FlipClock(900, {
+								clockFace: 'MinuteCounter',
+								countdown: true,
+								autoStart: false,
+								callbacks: {
+									start: function() {
+										//$('.message').html('The clock has started!');
+										document.getElementById("submitTest").disabled = false;
+									},
+									stop: function(){
+										document.getElementById("submitTest").disabled = true;
+										alert("Time Over");
+									}
+								}
+						});
+				});
+
+				var startTest = function(){
+						clock.start();
+				};
+				var endTest = function(){
+					  clock.stop();
+				};
+				var accuracyGaugeConfig = liquidFillGaugeDefaultSettings();
+						accuracyGaugeConfig.circleColor = "#2E7D32";
+						accuracyGaugeConfig.textColor = "#1B5E20";
+						accuracyGaugeConfig.waveTextColor = "#69F0AE";
+						accuracyGaugeConfig.waveColor = "#2E7D32";
+						accuracyGaugeConfig.waveAnimateTime = 2000;
+						accuracyGaugeConfig.waveCount = 1;
+						accuracyGaugeConfig.waveHeight = 0.15;
+				var accuracyGauge = loadLiquidFillGauge("accuracy", 0, accuracyGaugeConfig);
+
+				var errorGaugeConfig = liquidFillGaugeDefaultSettings();
+						errorGaugeConfig.circleColor = "#BF360C";
+						errorGaugeConfig.textColor = "#BF360C";
+						errorGaugeConfig.waveTextColor = "#FF6E40";
+						errorGaugeConfig.waveColor = "#BF360C";
+						errorGaugeConfig.waveAnimateTime = 2000;
+						errorGaugeConfig.waveCount = 1;
+						errorGaugeConfig.waveHeight = 0.15;
+				var errorGauge = loadLiquidFillGauge("error", 0, errorGaugeConfig);
+
+				var a = document.getElementById('a');
+				var b = document.getElementById('b');
+				var result = document.getElementById('result');
+
+
+				function changed() {
+								var diff = JsDiff[window.diffType](a.textContent, b.textContent);
+								console.log("Total Components : "+diff.length);
+								var errorCount = 0;
+							  var insCount = 0;
+							  var normalCount = 0;
+								var fragment = document.createDocumentFragment();
+								for (var i=0; i < diff.length; i++) {
+													if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
+																var swap = diff[i];
+																diff[i] = diff[i + 1];
+																diff[i + 1] = swap;
+													}
+													var node;
+													if (diff[i].removed) {
+																node = document.createElement('del');
+																node.appendChild(document.createTextNode(diff[i].value));
+																console.log("Missing words "+diff[i].value+" Length "+wordLength(diff[i].value));
+																errorCount += wordLength(diff[i].value);
+
+													} else if (diff[i].added) {
+																node = document.createElement('ins');
+																node.appendChild(document.createTextNode(diff[i].value));
+													      insCount += wordLength(diff[i].value) ;
+
+													} else {
+																node = document.createTextNode(diff[i].value);
+																normalCount += wordLength(diff[i].value);
+
+													}
+													fragment.appendChild(node);
+								}
+								console.log("Missing Words Count : "+errorCount);
+								console.log("Extra words count : "+insCount);
+							  console.log("Correct Components : "+normalCount);
+							  console.log("Error Percentage : "+((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
+								console.log("Accuracy : "+((normalCount)/(errorCount+insCount+normalCount))*100);
+								accuracyGauge.update(((normalCount)/(errorCount+insCount+normalCount))*100);
+								errorGauge.update(((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
+								result.textContent = '';
+								result.appendChild(fragment);
 				}
-		});
-});
 
-var abc = function(){
-	clock.start();
-};
-var config1 = liquidFillGaugeDefaultSettings();
-config1.circleColor = "#2E7D32";
-config1.textColor = "#1B5E20";
-config1.waveTextColor = "#69F0AE";
-config1.waveColor = "#2E7D32";
-config1.waveAnimateTime = 2000;
-config1.waveCount = 1;
-config1.waveHeight = 0.15;
-var gauge1 = loadLiquidFillGauge("fillgauge1", 0, config1);
+				window.onload = function() {
+					onDiffTypeChange();
+					b.addEventListener("keydown", startTest);
+					changed();
+				};
 
-var config2 = liquidFillGaugeDefaultSettings();
-config2.circleColor = "#BF360C";
-config2.textColor = "#BF360C";
-config2.waveTextColor = "#FF6E40";
-config2.waveColor = "#BF360C";
-config2.waveAnimateTime = 2000;
-config2.waveCount = 1;
-config2.waveHeight = 0.15;
-var gauge2 = loadLiquidFillGauge("fillgauge2", 0, config2);
-
-var a = document.getElementById('a');
-var b = document.getElementById('b');
-var result = document.getElementById('result');
+				a.onpaste = a.onchange =
+				b.onpaste = b.onchange = changed;
 
 
-function changed() {
-	var diff = JsDiff[window.diffType](a.textContent, b.textContent);
-	console.log("Total Components : "+diff.length);
-	var errorCount = 0;
-        var insCount = 0;
-        var normalCount = 0;
-	var fragment = document.createDocumentFragment();
-	for (var i=0; i < diff.length; i++) {
+				if ('oninput' in a) {
+					a.oninput = b.oninput = changed;
+				} else {
+					a.onkeyup = b.onkeyup = changed;
+				}
 
-		if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
-			var swap = diff[i];
-			diff[i] = diff[i + 1];
-			diff[i + 1] = swap;
-		}
-
-		var node;
-		if (diff[i].removed) {
-			node = document.createElement('del');
-			node.appendChild(document.createTextNode(diff[i].value));
-			console.log("Missing words "+diff[i].value+" Length "+wordLength(diff[i].value));
-			errorCount += wordLength(diff[i].value);
-
-		} else if (diff[i].added) {
-			node = document.createElement('ins');
-			node.appendChild(document.createTextNode(diff[i].value));
-                        insCount += wordLength(diff[i].value) ;
-
-		} else {
-			node = document.createTextNode(diff[i].value);
-			normalCount += wordLength(diff[i].value);
-
-		}
-		fragment.appendChild(node);
-	}
-	console.log("Missing Words Count : "+errorCount);
-	console.log("Extra words count : "+insCount);
-        console.log("Correct Components : "+normalCount);
-  console.log("Error Percentage : "+((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
-	console.log("Accuracy : "+((normalCount)/(errorCount+insCount+normalCount))*100);
-	gauge1.update(((normalCount)/(errorCount+insCount+normalCount))*100);
-	gauge2.update(((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
-	result.textContent = '';
-	result.appendChild(fragment);
-}
-
-window.onload = function() {
-	onDiffTypeChange(document.querySelector('#settings [name="diff_type"]:checked'));
-	b.addEventListener("keydown", abc);
-
-	changed();
-};
-
-a.onpaste = a.onchange =
-b.onpaste = b.onchange = changed;
-
-
-if ('oninput' in a) {
-	a.oninput = b.oninput = changed;
-} else {
-	a.onkeyup = b.onkeyup = changed;
-}
-
-function onDiffTypeChange(radio) {
-	window.diffType = radio.value;
-	document.title = "Diff " + radio.value.slice(4);
-}
-
-var radio = document.getElementsByName('diff_type');
-for (var i = 0; i < radio.length; i++) {
-	radio[i].onchange = function(e) {
-
-(e.target);
-		changed();
-	}
-}
-function wordLength(string){
-	var stringLength = 0;
-	var stringArray = string.trim().split(" ");
-		for(var i=0;i<stringArray.length;i++){
-			if(stringArray[i] !=""){
-				stringLength++;
+			function onDiffTypeChange() {
+				window.diffType = "diffWords";
 			}
-		}
-	return stringLength;
-}
 
-/*
-var displayTime = function () {
-	var countDownTime = new Date().getTime()+90000;
-	var getTime = setInterval(function() {
-		var now = new Date().getTime();
-		var distance = countDownTime - now;
-
-		timeRemaining--;
-		//timer.innerHTML = "Time Remaining: " + timeRemaining + "s";
-		gauge3.update(timeRemaining);
-		console.log(timeRemaining);
-	//	if(timeRemaining>0){guage3.update(timeRemaining);}
-		if(timeRemaining == 0){
-
-			clearInterval(getTime);
-
-			//var wrapper = document.getElementById("wrapper");
-			//wrapper.remove();
-			gauge3.update(0);
-			//timer.remove();
-
-			//document.body.appendChild(newTestWindow);
-			//document.getElementById("finalScore").innerHTML = "Your speed: " + calculateScore() + " words per minute.";
-			//newTestWindow.style.display = "block";
-		}
-	}, 1000);
-
-	b.removeEventListener("keydown", displayTime);
-};
-*/
+			function wordLength(string){
+				var stringLength = 0;
+				var stringArray = string.trim().split(" ");
+					for(var i=0;i<stringArray.length;i++){
+						if(stringArray[i] !=""){
+							stringLength++;
+						}
+					}
+				return stringLength;
+			}
 </script>
 
-<script language="JavaScript">
-
-</script>
 
 </body></html>
