@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0033)http://kpdecker.github.io/jsdiff/ -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 	<meta charset="utf-8">
 	<title>Diff Words</title>
@@ -11,6 +10,7 @@
 	<script src="./Diff_files/diff.js"></script>
 
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Nunito:700" rel="stylesheet">
 
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
@@ -22,6 +22,36 @@
     <script src="liquidFillGauge.js" language="JavaScript"></script>
     <style>
         .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
+				.passage:hover
+				{
+					cursor: pointer;
+					color: #00BFA5;
+				}
+				.passage{
+					font-family: 'Nunito', sans-serif;
+					border:1px solid;
+					border-radius: 7px;
+					padding: 5px;
+					text-align: justify;
+					margin: 10px;
+ 					font-size:25px;
+					height: 115px;
+					overflow: hidden;
+					text-overflow: ellipsis;
+				}
+				.practiceButton:hover{
+					cursor: pointer;
+					color: #FFF;
+					background-color: #00BFA5;
+				}
+				.practiceButton{
+					font-family: 'Nunito', sans-serif;
+					border:1px solid;
+					font-size: 25px;
+					border-color: #00BFA5;
+					background-color: Transparent;
+					padding: 5px;
+				}
     </style>
 </head>
 
@@ -34,9 +64,9 @@
 	          <button type="button" id="quickstart-sign-in">Sign In</button> <br>
 	    </div>
 	</div>
-
-<div id="passages"></div>
-
+<div id="navigation" style="width:100%">
+<div id="passages" style=""></div>
+</div>
 <div id="instructions"></div>
 <div id="practice" style="width:100%" >
 					<div class="clock" style="margin:2em; display:table;width:0;margin:0 auto"></div>
@@ -62,7 +92,9 @@ Mr. Jaishankar also met Speaker of the House of Representatives Paul Ryan and di
 			</tr>
 			</tbody>
 			</table>
-			<button onClick="showPassage()">Practice More</button>
+			<center>
+			<button class="practiceButton"onClick="showPassage()">Practice More</button>
+		</center>
 </div>
 
 <script defer="">
@@ -119,7 +151,7 @@ Mr. Jaishankar also met Speaker of the House of Representatives Paul Ryan and di
 				var clock;
 
 
-				var passageElem = document.getElementById('passages');
+				var passageElem = document.getElementById('navigation');
 				var instructionElem = document.getElementById('instructions');
 				var practiceElem = document.getElementById('practice');
 				var outputElem = document.getElementById('output');

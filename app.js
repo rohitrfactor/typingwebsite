@@ -300,10 +300,10 @@ function passagesFromDatabase()   //to fetch all passages from database
         snapshot.forEach(function(childSnapshot)
         {
             var div = document.createElement('div');
-            div.className = 'row';
+            div.className = 'row passage';
             var passage = childSnapshot.val().PassageString;
             div.onclick = createClickHandler(passage);
-            div.innerHTML=passage
+            div.innerHTML=passage;
             document.getElementById('passages').append(div);
         })
 
