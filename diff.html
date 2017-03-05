@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<!-- saved from url=(0033)http://kpdecker.github.io/jsdiff/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta charset="utf-8">
+	<title>Diff Words</title>
+	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="./Diff_files/flipclock.css">
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="http://d3js.org/d3.v3.min.js" language="JavaScript"></script>
+	<script src="./Diff_files/flipclock.js"></script>
+	<script src="./Diff_files/diff.js"></script>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+		<script src="https://www.gstatic.com/firebasejs/3.6.10/firebase.js"></script>
+
+		<script src="app.js"></script>
+
+    <script src="liquidFillGauge.js" language="JavaScript"></script>
+    <style>
+        .liquidFillGaugeText { font-family: Helvetica; font-weight: bold; }
+    </style>
+</head>
+
+<body>
+
+	<div class="container">
+	    <div class="row">
+	          <span id="user_email"></span>
+	          <span id="user_id" style="display:none"></span>
+	          <button type="button" id="quickstart-sign-in">Sign In</button> <br>
+	    </div>
+	</div>
+
+<div id="passages"></div>
+
+<div id="instructions"></div>
+<div id="practice" style="width:100%" >
+					<div class="clock" style="margin:2em; display:table;width:0;margin:0 auto"></div>
+					<button id="submitTest" onclick="endTest()" disabled="true">Finish</button>
+					<table>
+					<tbody><tr>
+							<td id="a">Foreign Secretary S. Jaishankar on Wednesday met U.S. National Security Advisor Lt. Gen. H.R. McMaster and discussed counter-terrorism and bilateral relations between the two countries.
+Mr. Jaishankar also met Speaker of the House of Representatives Paul Ryan and discussed various issues, including ways to enhance economic and defence cooperation between India and the U.S. “The relationship between the U.S. and India is rooted in shared values of democracy and freedom,” Mr. Ryan said in a statement.
+“We had a great opportunity today to build on this critical partnership by discussing ways to enhance our economic and defence cooperation,” it added.</td>
+							<td contenteditable="true" id="b" spellcheck="false"></td>
+					</tr>
+					</tbody>
+				  </table>
+</div>
+<div id="output">
+			<svg id="accuracy" width="25%" height="250" style="float:left"></svg>
+			<svg id="error" width="25%" height="250" style="float:left"></svg>
+			<svg id="depressions" width="25%" height="250" style="float:left"></svg>
+			<svg id="speed" width="25%" height="250" style="float:left"></svg>
+			<table>
+			<tbody><tr style="width:100%">
+							<td style="width:100%"><pre id="result" style="width:100%;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-o-pre-wrap;white-space:-pre-wrap;word-wrap: break-word;"><del></del><ins></ins></pre></td>
+			</tr>
+			</tbody>
+			</table>
+			<button onClick="showPassage()">Practice More</button>
+</div>
+
+<script defer="">
+				$('#b').bind("cut copy paste",function(e) {
+				     e.preventDefault();
+				 })
+
+				var accuracyGaugeConfig = liquidFillGaugeDefaultSettings();
+						accuracyGaugeConfig.circleColor = "#2E7D32";
+						accuracyGaugeConfig.textColor = "#1B5E20";
+						accuracyGaugeConfig.waveTextColor = "#69F0AE";
+						accuracyGaugeConfig.waveColor = "#2E7D32";
+						accuracyGaugeConfig.waveAnimateTime = 2000;
+						accuracyGaugeConfig.waveCount = 1;
+						accuracyGaugeConfig.waveHeight = 0.15;
+				var accuracyGauge = loadLiquidFillGauge("accuracy", 0, accuracyGaugeConfig);
+
+				var errorGaugeConfig = liquidFillGaugeDefaultSettings();
+						errorGaugeConfig.circleColor = "#BF360C";
+						errorGaugeConfig.textColor = "#BF360C";
+						errorGaugeConfig.waveTextColor = "#FF6E40";
+						errorGaugeConfig.waveColor = "#BF360C";
+						errorGaugeConfig.waveAnimateTime = 2000;
+						errorGaugeConfig.waveCount = 1;
+						errorGaugeConfig.waveHeight = 0.15;
+				var errorGauge = loadLiquidFillGauge("error", 0, errorGaugeConfig);
+
+				var depressionsGaugeConfig = liquidFillGaugeDefaultSettings();
+						depressionsGaugeConfig.circleColor = "##0277BD";
+						depressionsGaugeConfig.textColor = "#0277BD";
+						depressionsGaugeConfig.waveTextColor = "#40C4FF";
+						depressionsGaugeConfig.waveColor = "#0277BD";
+						depressionsGaugeConfig.waveAnimateTime = 2000;
+						depressionsGaugeConfig.waveCount = 1;
+						depressionsGaugeConfig.waveHeight = 0.15;
+						depressionsGaugeConfig.displayPercent = false;
+				var depressionsGauge = loadLiquidFillGauge("depressions", 0, depressionsGaugeConfig);
+
+				var speedGaugeConfig = liquidFillGaugeDefaultSettings();
+						speedGaugeConfig.circleColor = "#00695C";
+						speedGaugeConfig.textColor = "#00695C";
+						speedGaugeConfig.waveTextColor = "#64FFDA";
+						speedGaugeConfig.waveColor = "#00695C";
+						speedGaugeConfig.waveAnimateTime = 2000;
+						speedGaugeConfig.waveCount = 1;
+						speedGaugeConfig.waveHeight = 0.15;
+						speedGaugeConfig.displayPercent = false;
+				var speedGauge = loadLiquidFillGauge("speed", 0, speedGaugeConfig);
+
+				var a = document.getElementById('a');
+				var b = document.getElementById('b');
+				var result = document.getElementById('result');
+
+				var clock;
+
+
+				var passageElem = document.getElementById('passages');
+				var instructionElem = document.getElementById('instructions');
+				var practiceElem = document.getElementById('practice');
+				var outputElem = document.getElementById('output');
+
+        var showPassage = function() {
+        	  passageElem.style.display="block";
+						instructionElem.style.display="none";
+						practiceElem.style.display="none";
+						outputElem.style.display="none";
+        };
+				var showInstruction = function(){
+					passageElem.style.display="none";
+					instructionElem.style.display="block";
+					practiceElem.style.display="none";
+					outputElem.style.display="none";
+
+				};
+				var showTest = function(){
+					passageElem.style.display="none";
+					instructionElem.style.display="none";
+					practiceElem.style.display="block";
+					outputElem.style.display="none";
+				};
+				var showResult = function(){
+					passageElem.style.display="none";
+					instructionElem.style.display="none";
+					practiceElem.style.display="none";
+					outputElem.style.display="block";
+				};
+
+				$(document).ready(function() {
+
+					clock = $('.clock').FlipClock(900, {
+								clockFace: 'MinuteCounter',
+								countdown: true,
+								autoStart: false,
+								callbacks: {
+									start: function() {
+										//$('.message').html('The clock has started!');
+										document.getElementById("submitTest").disabled = false;
+									},
+									stop: function(){
+										document.getElementById("submitTest").disabled = true;
+										console.log("Elapsed Time "+(900-clock.getTime().time)+" seconds");
+										console.log("Depressions : "+b.textContent.length);
+										depressionsGauge.update(b.textContent.length);
+										speedGauge.update(Math.ceil((b.textContent.length/(900-clock.getTime().time))*900));
+										showResult();
+									}
+								}
+						});
+				});
+
+				var startTest = function(){
+						clock.start();
+				};
+				var endTest = function(){
+					  clock.stop();
+				};
+
+
+
+
+				function changed() {
+								var diff = JsDiff[window.diffType](a.textContent, b.textContent);
+								console.log("Total Components : "+diff.length);
+								var errorCount = 0;
+							  var insCount = 0;
+							  var normalCount = 0;
+								var fragment = document.createDocumentFragment();
+								for (var i=0; i < diff.length; i++) {
+													if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
+																var swap = diff[i];
+																diff[i] = diff[i + 1];
+																diff[i + 1] = swap;
+													}
+													var node;
+													if (diff[i].removed) {
+																node = document.createElement('del');
+																node.appendChild(document.createTextNode(diff[i].value));
+																console.log("Missing words "+diff[i].value+" Length "+wordLength(diff[i].value));
+																errorCount += wordLength(diff[i].value);
+
+													} else if (diff[i].added) {
+																node = document.createElement('ins');
+																node.appendChild(document.createTextNode(diff[i].value));
+													      insCount += wordLength(diff[i].value) ;
+
+													} else {
+																node = document.createTextNode(diff[i].value);
+																normalCount += wordLength(diff[i].value);
+
+													}
+													fragment.appendChild(node);
+								}
+								console.log("Missing Words Count : "+errorCount);
+								console.log("Extra words count : "+insCount);
+							  console.log("Correct Components : "+normalCount);
+							  console.log("Error Percentage : "+((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
+								console.log("Accuracy : "+((normalCount)/(errorCount+insCount+normalCount))*100);
+								accuracyGauge.update(((normalCount)/(errorCount+insCount+normalCount))*100);
+								errorGauge.update(((errorCount+insCount)/(errorCount+insCount+normalCount))*100);
+								result.textContent = '';
+								result.appendChild(fragment);
+				}
+
+				window.onload = function() {
+				  checkLoginAndRegisterStatus();
+				  passagesFromDatabase();
+					showPassage();
+					onDiffTypeChange();
+					b.addEventListener("keydown", startTest);
+					changed();
+				};
+
+				a.onpaste = a.onchange =
+				b.onpaste = b.onchange = changed;
+
+
+				if ('oninput' in a) {
+					a.oninput = b.oninput = changed;
+				} else {
+					a.onkeyup = b.onkeyup = changed;
+				}
+
+			function onDiffTypeChange() {
+				window.diffType = "diffWords";
+			}
+
+			function wordLength(string){
+				var stringLength = 0;
+				var stringArray = string.trim().split(" ");
+					for(var i=0;i<stringArray.length;i++){
+						if(stringArray[i] !=""){
+							stringLength++;
+						}
+					}
+				return stringLength;
+			}
+</script>
+
+
+</body></html>
