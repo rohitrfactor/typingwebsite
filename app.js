@@ -33,12 +33,15 @@ var loginButton = document.getElementById("quickstart-sign-in");
 
  var login = function()
  {
+
     if (firebase.auth().currentUser)
     {
         firebase.auth().signOut();
     }
      else
      {
+       document.getElementById('loginDiv').style.display = "none";
+       document.getElementById('loading').style.display = "block";
        var email = document.getElementById('email').value;
        var password = document.getElementById('password').value;
        firebase.auth().signInWithEmailAndPassword(email, password)
@@ -50,6 +53,8 @@ var loginButton = document.getElementById("quickstart-sign-in");
              })
             .catch(function(error) // Handle Errors here.
             {
+                    document.getElementById('loginDiv').style.display = "block";
+                    document.getElementById('loading').style.display = "none";
                   var errorCode = error.code;
                   var errorMessage = error.message;
 
@@ -112,6 +117,18 @@ function isRegistered(email,id) //function to check user is registered or not on
                   }
          }
     });
+}
+
+function forget()
+{
+          var auth = firebase.auth();
+          var emailAddress = document.getElementById('email').value;
+
+          auth.sendPasswordResetEmail(emailAddress).then(function() {
+              $("#loginError").html('Please check inbox of your email id.');
+          }, function(error) {
+              $("#loginError").html('Sorry something went wrong '+error);
+          });
 }
 
 function push_users_info_error(id,email)   //function to handle errors of user registration
@@ -211,7 +228,8 @@ function checkLoginStatus() //function to check that a user a logged in :O
             var photoURL = user.photoURL;
             var uid = user.uid;
             var providerData = user.providerData;
-            alert("logged in");
+            //alert("logged in");
+            console.log("logged in");
             document.getElementById('user_email').textContent = email;
             document.getElementById('user_id').textContent = uid;
             document.getElementById('quickstart-sign-in').textContent = 'Sign out';
@@ -273,7 +291,8 @@ function checkLoginAndRegisterStatus() //function to check that a user a logged 
         }
         else
         {
-           alert('Signed out');
+           //alert('Signed out');
+           console.log('Signed out');
            window.location="index.html";
            document.getElementById('quickstart-sign-in').textContent = 'Sign in';
         }
@@ -284,18 +303,19 @@ function checkLoginAndRegisterStatus() //function to check that a user a logged 
 
 function passagesFromDatabase()   //to fetch all passages from database
 {
+   passageLoaderShow();
    var passagesQuery = firebase.database().ref("Passages");
    passagesQuery.on('value', function(snapshot)
    {
-
-     var createClickHandler = function(arg)
-     {
-       return function()
-       {
-         document.getElementById('a').innerHTML = arg;
-         showTest();
-       };
-     }
+         passageLoaderHide();
+         var createClickHandler = function(arg)
+         {
+           return function()
+           {
+             document.getElementById('a').innerHTML = arg;
+             showTest();
+           };
+         }
 
         snapshot.forEach(function(childSnapshot)
         {
@@ -307,5 +327,8 @@ function passagesFromDatabase()   //to fetch all passages from database
             document.getElementById('passages').append(div);
         })
 
-   })
+   },function(errorObject){
+        console.log("Retry Error Fetching Data : "+errorObject.code);
+   }
+ );
 }

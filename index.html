@@ -6,6 +6,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	<link href="https://fonts.googleapis.com/css?family=Nunito:700" rel="stylesheet">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
@@ -16,21 +17,32 @@
 
 input[type=email], input[type=password] {
     width: 50%;
-    padding: 12px 20px;
-    margin: 8px 0;
-    display: inline-block;
-    border: 1px solid #ccc;
-    box-sizing: border-box;
+    font-family: 'Nunito', sans-serif;
+    color: #00BFA5;
+    border:2px solid;
+    font-size: 25px;
+    border-color: #00BFA5;
+    border-radius: 4px;
+    background-color: Transparent;
+    padding: 10px;
 }
 
 button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 14px 20px;
-    margin: 8px 0;
-    border: none;
-    cursor: pointer;
-    width: 20%;
+  font-family: 'Nunito', sans-serif;
+  color: #00BFA5;
+  border:2px solid;
+  font-size: 25px;
+  margin:30px;
+  border-color: #00BFA5;
+  background-color: Transparent;
+  padding: 5px;
+  padding-left: 25px;
+  padding-right: 25px;
+}
+button:hover{
+  cursor: pointer;
+  color: #FFF;
+  background-color: #00BFA5;
 }
 
 .imgcontainer {
@@ -55,7 +67,9 @@ span.psw {
 #loginError
 {
   color: red;
-  font-size: 20px;
+  font-size: 25px;
+  font-family: 'Nunito', sans-serif;
+  background-color: Transparent;
 }
 
 /* Change styles for span on extra small screens */
@@ -65,38 +79,39 @@ span.psw {
        float: none;
     }
 }
+
+body {
+    background: url("typing-in-nature.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+}
 </style>
 
 </head>
 
-<body style="background-color:black">
+<body class="cover">
 
 
+  <div class="container" style="padding-top:10%">
+      <div id="loginDiv">
+      <div class="row"> <center>
+                <input type="email" id="email" placeholder="Enter Username" name="email" spellcheck="false" required> </center> </div> <br>
 
-  <div class="imgcontainer">
-      <img src="img_avatar2.png" alt="Avatar" class="avatar">
-  </div>  <br>
+              <div class="row"> <center>
+                <input type="password" id="password" placeholder="Enter Password" name="password" required>  </center> </div>
 
-  <div class="container">
-
-      <div class="row"> <center> <input type="email" id="email" placeholder="Enter Username" name="email" required> </center> </div> <br><br>
-
-      <div class="row"> <center> <input type="password" id="password" placeholder="Enter Password" name="password" required>  </center> </div> <br>  <br>
-
-      <div class="row"> <center>  <button type="button"  id="quickstart-sign-in">Login</button> </center> </div>  <br><br>
-
-      <div class="row"> <center>  <div id="loginError"></div> </div>
+              <div class="row"> <center>
+                <button type="button"  id="quickstart-sign-in">Login</button> </center> </div>  <br>
+      </div>
+      <img id="loading" src="https://www.google.com/images/spin-32.gif" style="display:none; margin:0 auto"></div>
+      <div class="row"> <center>
+        <div id="loginError">
+      </div> </div>
 
   </div>
 
 
-
-
-
-
   <script src="app.js"></script>
-
-
 
 </body>
 </html>
