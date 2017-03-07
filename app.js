@@ -1,11 +1,11 @@
 
 // Initialize Firebase
 var config = {
-  apiKey: "AIzaSyB3mzQDFh2WR5XDHwMW8ooInWlTfijTk9Y",
-  authDomain: "tier4-c76c1.firebaseapp.com",
-  databaseURL: "https://tier4-c76c1.firebaseio.com",
-  storageBucket: "tier4-c76c1.appspot.com",
-  messagingSenderId: "545349549762"
+    apiKey: "AIzaSyCAdOcZJa8hRUTPJ8qAWDKyYLjf_cilI50",
+    authDomain: "pinnacleapp-f8448.firebaseapp.com",
+    databaseURL: "https://pinnacleapp-f8448.firebaseio.com",
+    storageBucket: "pinnacleapp-f8448.appspot.com",
+    messagingSenderId: "843834262520"
 };
 firebase.initializeApp(config);
 
@@ -123,7 +123,6 @@ function forget()
 {
           var auth = firebase.auth();
           var emailAddress = document.getElementById('email').value;
-
           auth.sendPasswordResetEmail(emailAddress).then(function() {
               $("#loginError").html('Please check inbox of your email id.');
           }, function(error) {
